@@ -13,10 +13,7 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 
 
-# =========================
-# Config
-# =========================
-DATA_DIR = "data"          # folder with training jpg files
+DATA_DIR = "data"       
 MODEL_PATH = "model.pt"
 BATCH_SIZE = 32
 NUM_EPOCHS = 2
@@ -39,9 +36,6 @@ CLASS_TO_IDX = {cls_name: i for i, cls_name in enumerate(CLASSES)}
 IDX_TO_CLASS = {i: cls_name for cls_name, i in CLASS_TO_IDX.items()}
 
 
-# =========================
-# Dataset
-# =========================
 class SoCalDataset(Dataset):
     def __init__(self, image_dir, transform=None):
         self.image_dir = image_dir
@@ -64,8 +58,6 @@ class SoCalDataset(Dataset):
 
         image = Image.open(filepath).convert("RGB")
 
-        # Label is everything before the first dash
-        # Example: Los_Angeles-abc123.jpg -> Los_Angeles
         label_str = filename.split("-")[0]
 
         if label_str not in CLASS_TO_IDX:
@@ -79,22 +71,14 @@ class SoCalDataset(Dataset):
         return image, label
 
 
-# =========================
-# Model
-# =========================
 def build_model():
     model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
-    # Replace final layer for 6 classes
     num_features = model.fc.in_features
     model.fc = nn.Linear(num_features, len(CLASSES))
 
     return model
 
-
-# =========================
-# Training / Evaluation
-# =========================
 def evaluate(model, dataloader, criterion, device):
     model.eval()
 
@@ -189,8 +173,8 @@ def plot_training_curve(history, save_path="training_curve.png"):
     epochs = range(1, len(history["train_loss"]) + 1)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(epochs, history["train_loss"], label="Train Loss")
-    plt.plot(epochs, history["val_loss"], label="Validation Loss")
+    plt.plot(epochs, history["train_loss"], marker="o", label="Train Loss")
+    plt.plot(epochs, history["val_loss"], marker="o", label="Validation Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.title("Training Curve")
@@ -199,10 +183,6 @@ def plot_training_curve(history, save_path="training_curve.png"):
     plt.savefig(save_path)
     plt.close()
 
-
-# =========================
-# Main
-# =========================
 def main():
     torch.manual_seed(RANDOM_SEED)
 
@@ -261,7 +241,6 @@ def main():
         num_workers=NUM_WORKERS
     )
 
-    # Optional: class distribution check
     label_counts = Counter()
     for filename in full_dataset.image_files:
         label_str = filename.split("-")[0]

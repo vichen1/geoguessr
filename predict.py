@@ -24,11 +24,6 @@ def build_model():
 
 
 def predict(image_path):
-    """
-    image_path: path to a directory containing test images
-
-    returns: dict mapping image filename -> predicted city string
-    """
     device = torch.device("cpu")
 
     model = build_model()
